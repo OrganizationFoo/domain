@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <form th:object="${postForm}" th:action="@{/post}" method="post">
+
+        <div th:if="${#fields.hasErrors('*')}">
+            <ul>
+
+                <li th:each="err : ${#fields.detailedErrors()}"><span th:text="${err}"> err </span></li>
+
+            </ul>
+        </div>
+
+        <input type="hidden" th:field="*{id}" />
+        <table>
+            <tr>
+                <td>message</td>
+                <td><input type="text" th:field="*{message}" /></td>
+            </tr>
+        </table>
+        <div>
+            <button type="submit">Submit</button>
+            <a href="/post">Back</a>
+        </div>
+    </form>
+</body>
+</html>

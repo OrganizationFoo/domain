@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <table>
+        <tr>
+            <td>email</td>
+            <td th:text="${user.email}" /></td>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td th:text="${user.name}" /></td>
+        </tr>
+        <tr>
+            <td>verified</td>
+            <td th:text="${user.verified}" /></td>
+        </tr>
+    </table>
+    <div>
+        <a href="/">Ok</a>
+    </div>
+</body>
+</html>

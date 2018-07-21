@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3>Users</h3>
+    <div th:if="${not #lists.isEmpty(users)}">
+        <table>
+            <tr>
+                <th>email</th>
+                <th>name</th>
+                <th>verified</th>
+                <th />
+            </tr>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.verified}"></td>
+                <td><a th:href="${'/user/show/' + user.id}">View</a> <a th:href="${'/user/edit/' + user.id}">Edit</a> <a th:href="${'/user/delete/' + user.id}">Delete</a></td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <div>
+        <a href="/user/new">New</a>
+    </div>
+    <div>
+        <a href="/post/list">Posts</a>
+    </div>
+</body>
+</html>
