@@ -31,8 +31,31 @@ public class MessageController {
     @Autowired
     private UserRepository userRepository;
 
+    @GetMapping("/users/{userId}/messages/{messageId}")
+    public Message getMessage(@PathVariable(value = "userId") Long userId, @PathVariable(value = "messageId") Long messageId) {
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            throw new ResourceNotFoundException("UserId " + userId + " not found");
+        }
+
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (!optionalMessage.isPresent()) {
+            throw new ResourceNotFoundException("MessageId " + messageId + " not found");
+        }
+
+        User user = optionalUser.get();
+        Message message = optionalMessage.get();
+
+        if (!message.getUser().getId().equals(user.getId())) {
+            throw new DataInconsistencyException("Expecting UserId " + message.getUser().getId() + " (author) of MessageId " + messageId + ", instead found " + userId);
+        }
+
+        return message;
+    }
+
     @GetMapping("/users/{userId}/messages")
-    public Page<Message> getAllMessagesByUserId(@PathVariable(value = "userId") Long userId, Pageable pageable) {
+    public Page<Message> getMessages(@PathVariable(value = "userId") Long userId, Pageable pageable) {
         return messageRepository.findByUserId(userId, pageable);
     }
 

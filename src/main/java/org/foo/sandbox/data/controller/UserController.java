@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public Page<User> getAllUsers(Pageable pageable) {
+    public Page<User> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
