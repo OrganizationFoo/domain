@@ -2,78 +2,63 @@ package org.foo.sandbox.data.controller;
 
 import javax.validation.Valid;
 
+import org.foo.sandbox.data.exception.ResourceNotFoundException;
 import org.foo.sandbox.data.model.User;
-import org.foo.sandbox.data.model.dto.UserDto;
-import org.foo.sandbox.data.model.service.UserService;
+import org.foo.sandbox.data.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    UserRepository userRepository;
 
-    @RequestMapping("/")
-    public String list() {
-        return "redirect:/user/list";
+    @GetMapping("/users/{userId}")
+    public User getUser(@PathVariable Long userId) {
+
+        return userRepository.findById(userId).map(user -> {
+            return user;
+        }).orElseThrow(() -> new ResourceNotFoundException("UserId " + userId + " not found"));
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public String save(@Valid @ModelAttribute("userForm") UserDto user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "user/edit";
-        }
-        try {
-            user = userService.save(user);
-            return "redirect:/user/list";
-        } catch (Exception e) {
-            e.printStackTrace();
-            Throwable tmp = e;
-            do {
-                ObjectError error = new ObjectError(tmp.getClass().getSimpleName(), tmp.getMessage());
-                bindingResult.addError(error);
-            } while ((tmp = tmp.getCause()) != null);
-            return "user/edit";
-        }
+    @GetMapping("/users")
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
-    @RequestMapping({ "/user/list", "/user" })
-    public String list(Model model) {
-        model.addAttribute("users", userService.findAll(0, 100, "email", Direction.ASC));
-        return "user/list";
+    @PostMapping("/users")
+    public User createUser(@Valid @RequestBody User input) {
+        User user = new User();
+        user.setEmail(input.getEmail());
+        user.setName(input.getName());
+        return userRepository.save(user);
     }
 
-    @RequestMapping("/user/new")
-    public String create(Model model) {
-        model.addAttribute("userForm", new UserDto());
-        return "user/edit";
+    @PutMapping("/users/{userId}")
+    public User updateUser(@PathVariable Long userId, @Valid @RequestBody User input) {
+
+        return userRepository.findById(userId).map(user -> {
+            user.setName(input.getName());
+            return userRepository.save(user);
+        }).orElseThrow(() -> new ResourceNotFoundException("UserId " + userId + " not found"));
     }
 
-    @RequestMapping("/user/show/{id}")
-    public String find(@PathVariable String id, Model model) {
-        model.addAttribute("user", userService.findById(Long.valueOf(id)));
-        return "user/show";
-    }
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
 
-    @RequestMapping("user/edit/{id}")
-    public String edit(@PathVariable String id, Model model) {
-        User user = userService.findById(Long.valueOf(id));
-        model.addAttribute("userForm", user);
-        return "user/edit";
-    }
-
-    @RequestMapping("/user/delete/{id}")
-    public String delete(@PathVariable String id) {
-        userService.deleteById(Long.valueOf(id));
-        return "redirect:/user/list";
+        return userRepository.findById(userId).map(user -> {
+            userRepository.delete(user);
+            return ResponseEntity.ok().build();
+        }).orElseThrow(() -> new ResourceNotFoundException("UserId " + userId + " not found"));
     }
 }

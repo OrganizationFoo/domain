@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(value = { "created", "updated" }, allowGetters = true)
 public abstract class BaseModel implements Serializable {
 
-    private static final long serialVersionUID = -843450789069869909L;
+    private static final long serialVersionUID = 139355490392966901L;
 
     private Date created;
     private Date updated;
@@ -32,15 +32,15 @@ public abstract class BaseModel implements Serializable {
         return created;
     }
 
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated", nullable = false)
     @LastModifiedDate
     public Date getUpdated() {
         return updated;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public void setUpdated(Date updated) {
